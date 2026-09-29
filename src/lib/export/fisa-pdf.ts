@@ -257,7 +257,6 @@ function drawHeader(
       try {
         doc.image(company.logoBytes, pageLeft, y, {
           fit: [logoW, logoH],
-          align: "left",
           valign: "center",
         });
         textX = pageLeft + logoW + 10;
