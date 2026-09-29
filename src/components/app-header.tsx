@@ -5,6 +5,7 @@ import { AppNav } from "@/components/app-nav";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { getT } from "@/lib/i18n/server";
 import { ExplorerToggle } from "@/components/explorer-toggle";
+import { HistoryNav } from "@/components/history-nav";
 
 export async function AppHeader() {
   const session = await getSession();
@@ -14,6 +15,7 @@ export async function AppHeader() {
     <header className="flex h-12 items-center justify-between gap-2 border-b border-line bg-panel px-3 sm:px-4">
       <div className="flex min-w-0 items-center gap-2 sm:gap-4">
         <ExplorerToggle />
+        <HistoryNav />
         <Link
           href="/projects"
           className="font-[family-name:var(--font-dm)] text-lg font-semibold tracking-tight text-ink"

@@ -20,9 +20,6 @@ export default async function LoginPage() {
         </h1>
         <p className="mt-1 text-sm text-muted">{t((m) => m.login.subtitle)}</p>
         <LoginForm />
-        <p className="mt-4 text-xs text-muted">
-          admin@geoforix.local / admin123 · field@geoforix.local / field123
-        </p>
       </div>
     </div>
   );

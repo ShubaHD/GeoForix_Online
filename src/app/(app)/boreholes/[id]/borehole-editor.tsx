@@ -143,6 +143,7 @@ export function BoreholeEditor({
   const [lng, setLng] = useState<string>(
     initial.longitude != null ? String(initial.longitude) : "",
   );
+  const [editMapLocation, setEditMapLocation] = useState(false);
   const sandMode = useMemo(() => usesSandCompaction(soilType), [soilType]);
 
   const pdfWarnings = useMemo(
@@ -742,6 +743,15 @@ export function BoreholeEditor({
           <div className="flex flex-wrap gap-3 rounded-lg border border-line bg-panel p-4">
             <form onSubmit={uploadPhotos} className="flex flex-wrap items-end gap-3">
               <label className="text-xs">
+                {t((m) => m.borehole.photoName)}
+                <input
+                  name="name"
+                  type="text"
+                  placeholder={t((m) => m.borehole.photoName)}
+                  className={inputCls}
+                />
+              </label>
+              <label className="text-xs">
                 {t((m) => m.borehole.pickFromGallery)}
                 <input
                   name="photos"
@@ -757,6 +767,16 @@ export function BoreholeEditor({
               </button>
             </form>
             <form onSubmit={uploadPhotos} className="flex flex-wrap items-end gap-3">
+              <label className="text-xs">
+                {t((m) => m.borehole.photoName)}
+                <input
+                  name="name"
+                  type="text"
+                  required
+                  placeholder={t((m) => m.borehole.photoName)}
+                  className={inputCls}
+                />
+              </label>
               <label className="text-xs">
                 {t((m) => m.borehole.takePhoto)}
                 <input
@@ -789,7 +809,25 @@ export function BoreholeEditor({
                     className="h-40 w-full object-cover"
                   />
                   <div className="flex items-center justify-between gap-2 p-2 text-xs">
-                    <span className="truncate">{p.name || p.filePath}</span>
+                    <input
+                      type="text"
+                      defaultValue={p.name || ""}
+                      placeholder={t((m) => m.borehole.photoName)}
+                      className="min-w-0 flex-1 rounded border border-line bg-bg px-2 py-1"
+                      onBlur={async (e) => {
+                        const name = e.target.value.trim();
+                        if (name === (p.name || "").trim()) return;
+                        await fetch(
+                          `/api/boreholes/${initial.id}/photos/${p.id}`,
+                          {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ name }),
+                          },
+                        );
+                        router.refresh();
+                      }}
+                    />
                     <DeleteBtn
                       label={t((m) => m.borehole.deletePhoto)}
                       onClick={async () => {
@@ -814,6 +852,15 @@ export function BoreholeEditor({
             <button type="button" onClick={useDeviceLocation} className={btnPrimary}>
               {t((m) => m.borehole.useMyLocation)}
             </button>
+            <button
+              type="button"
+              onClick={() => setEditMapLocation((v) => !v)}
+              className={editMapLocation ? btnPrimary : btnGhost}
+            >
+              {editMapLocation
+                ? t((m) => m.borehole.stopEditLocation)
+                : t((m) => m.borehole.editLocation)}
+            </button>
             {lat && lng ? (
               <a
                 href={`https://www.google.com/maps?q=${lat},${lng}`}
@@ -825,12 +872,18 @@ export function BoreholeEditor({
               </a>
             ) : null}
             <span className="text-xs text-muted">
-              {t((m) => m.borehole.setOnMap)}
+              {editMapLocation
+                ? t((m) => m.borehole.setOnMap)
+                : t((m) => m.borehole.viewMapHint)}
             </span>
           </div>
           <BoreholesMapClient
-            pickMode
-            onPick={(la, lo) => void saveCoords(la, lo)}
+            pickMode={editMapLocation}
+            onPick={
+              editMapLocation
+                ? (la, lo) => void saveCoords(la, lo)
+                : undefined
+            }
             height="420px"
             points={(() => {
               const others = (initial.mapPoints ?? []).filter(

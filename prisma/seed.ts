@@ -1,5 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import { hashPassword } from "../src/lib/password";
+import { saveUpload } from "../src/lib/storage";
+import fs from "fs/promises";
+import path from "path";
 
 const prisma = new PrismaClient();
 
@@ -35,8 +38,48 @@ async function seedUsers() {
   console.log("Users seeded (admin/field @ geoforix.local)");
 }
 
+async function seedCompany() {
+  const logoFile = path.join(__dirname, "assets", "geoforix-logo.png");
+  let logoPath: string | null = null;
+  try {
+    const bytes = await fs.readFile(logoFile);
+    logoPath = await saveUpload("company", "geoforix-logo.png", bytes);
+  } catch (e) {
+    console.warn("Company logo not uploaded:", e);
+  }
+
+  await prisma.companySettings.upsert({
+    where: { id: "default" },
+    update: {
+      name: "GeoForix Geotehnică SRL",
+      address: "Str. Exemplu nr. 10, Sector 1, București",
+      phone: "+40 721 000 000",
+      email: "office@geoforix.ro",
+      website: "https://geoforix.ro",
+      vatId: "RO12345678",
+      ...(logoPath ? { logoPath } : {}),
+    },
+    create: {
+      id: "default",
+      name: "GeoForix Geotehnică SRL",
+      address: "Str. Exemplu nr. 10, Sector 1, București",
+      phone: "+40 721 000 000",
+      email: "office@geoforix.ro",
+      website: "https://geoforix.ro",
+      vatId: "RO12345678",
+      logoPath,
+    },
+  });
+  console.log(
+    "Company settings seeded",
+    logoPath ? `(logo: ${logoPath})` : "(no logo)",
+  );
+}
+
 async function seedDemo() {
-  const existing = await prisma.project.findUnique({ where: { code: "DEMO-GF" } });
+  const existing = await prisma.project.findUnique({
+    where: { code: "DEMO-GF" },
+  });
   if (existing) {
     console.log("Demo project already exists");
     return;
@@ -78,24 +121,18 @@ async function seedDemo() {
               {
                 fromM: 3.2,
                 toM: 6.0,
-                type: "Nisip",
+                type: "Nisip argilos",
                 sandCompaction: "Mediu indesat",
-                color: "GALBUI",
+                color: "GALBEN CENUSIU",
                 sortOrder: 2,
               },
-            ],
-          },
-          samples: {
-            create: [
               {
-                depthM: "2.00-2.40",
-                type: "Netulburată",
-                notes: "Proba demo",
-              },
-              {
-                depthM: "4.50",
-                type: "SPT",
-                sptValues: "4,6,8",
+                fromM: 6.0,
+                toM: 12.5,
+                type: "Argila prafoasa",
+                consistency: "Plastic vartos",
+                color: "BRUN",
+                sortOrder: 3,
               },
             ],
           },
@@ -122,6 +159,7 @@ async function seedDemo() {
 
 async function main() {
   await seedUsers();
+  await seedCompany();
   await seedDemo();
 }
 

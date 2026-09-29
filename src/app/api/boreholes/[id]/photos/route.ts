@@ -42,6 +42,12 @@ export async function POST(
   if (files.length === 0) {
     return NextResponse.json({ error: "No files" }, { status: 400 });
   }
+  const caption = String(fd.get("name") ?? "").trim();
+  const depthRaw = fd.get("depthM");
+  const depthM =
+    depthRaw != null && String(depthRaw).trim() !== ""
+      ? Number(depthRaw)
+      : null;
   const created = [];
   for (const file of files) {
     const bytes = Buffer.from(await file.arrayBuffer());
@@ -54,7 +60,8 @@ export async function POST(
       data: {
         boreholeId,
         filePath,
-        name: file.name,
+        name: caption || file.name,
+        depthM: Number.isFinite(depthM) ? depthM : null,
       },
     });
     created.push(photo);

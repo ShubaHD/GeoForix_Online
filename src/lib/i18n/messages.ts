@@ -12,6 +12,7 @@ export type Messages = {
     client: string;
     boreholes: string;
     back: string;
+    forward: string;
     notes: string;
     language: string;
     loading: string;
@@ -132,6 +133,9 @@ export type Messages = {
     deletePhoto: string;
     useMyLocation: string;
     setOnMap: string;
+    editLocation: string;
+    stopEditLocation: string;
+    viewMapHint: string;
     openGoogleMaps: string;
   };
   map: {
@@ -227,6 +231,7 @@ const ro: Messages = {
     client: "Client",
     boreholes: "Foraje",
     back: "Înapoi",
+    forward: "Înainte",
     notes: "Observații",
     language: "Limbă",
     loading: "Se încarcă…",
@@ -356,6 +361,9 @@ const ro: Messages = {
     deletePhoto: "Șterge foto",
     useMyLocation: "Folosește locația dispozitivului",
     setOnMap: "Click pe hartă pentru a seta punctul",
+    editLocation: "Mută punctul pe hartă",
+    stopEditLocation: "Oprește mutarea",
+    viewMapHint: "Vizualizare — apasă „Mută punctul pe hartă” doar dacă vrei să schimbi coordonatele.",
     openGoogleMaps: "Deschide în Google Maps",
   },
   map: {
@@ -452,6 +460,7 @@ const en: Messages = {
     client: "Client",
     boreholes: "Boreholes",
     back: "Back",
+    forward: "Forward",
     notes: "Notes",
     language: "Language",
     loading: "Loading…",
@@ -581,6 +590,9 @@ const en: Messages = {
     deletePhoto: "Delete photo",
     useMyLocation: "Use device location",
     setOnMap: "Click the map to set the point",
+    editLocation: "Move point on map",
+    stopEditLocation: "Stop moving",
+    viewMapHint: "View only — tap “Move point on map” only if you want to change coordinates.",
     openGoogleMaps: "Open in Google Maps",
   },
   map: {
@@ -676,6 +688,7 @@ const de: Messages = {
     client: "Auftraggeber",
     boreholes: "Bohrungen",
     back: "Zurück",
+    forward: "Vorwärts",
     notes: "Bemerkungen",
     language: "Sprache",
     loading: "Laden…",
@@ -805,6 +818,9 @@ const de: Messages = {
     deletePhoto: "Foto löschen",
     useMyLocation: "Gerätestandort verwenden",
     setOnMap: "Klicken Sie auf die Karte, um den Punkt zu setzen",
+    editLocation: "Punkt auf Karte verschieben",
+    stopEditLocation: "Verschieben beenden",
+    viewMapHint: "Nur Ansicht — „Punkt verschieben“ nur aktivieren, wenn Sie die Koordinaten ändern wollen.",
     openGoogleMaps: "In Google Maps öffnen",
   },
   map: {
