@@ -1,0 +1,185 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  /// ADMIN | FIELD
+  role         String   @default("FIELD")
+  createdAt    DateTime @default(now())
+}
+
+model Project {
+  id          String     @id @default(cuid())
+  code        String     @unique
+  name        String
+  topic       String?
+  location    String?
+  client      String?
+  description String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  boreholes   Borehole[]
+}
+
+model Borehole {
+  id            String           @id @default(cuid())
+  projectId     String
+  project       Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  code          String
+  depthMeters   Float?
+  latitude      Float?
+  longitude     Float?
+  kilometraj    String?
+  tipInstalatie String?
+  intocmit      String?
+  categorie     String?
+  notes         String?
+  drilledAt     DateTime?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  layers        LithologyLayer[]
+  samples       Sample[]
+  waterLevels   WaterLevel[]
+  equipment     Equipment[]
+  photos        Photo[]
+  pmtReadings   PmtReading[]
+  otvReadings   OtvReading[]
+  ppReadings    PpReading[]
+  vstReadings   VstReading[]
+  rqdReadings   RqdReading[]
+
+  @@unique([projectId, code])
+}
+
+model LithologyLayer {
+  id             String   @id @default(cuid())
+  boreholeId     String
+  borehole       Borehole @relation(fields: [boreholeId], references: [id], onDelete: Cascade)
+  fromM          Float
+  toM            Float
+  type           String?
+  consistency    String?
+  sandCompaction String?
+  color          String?
+  notes          String?
+  sortOrder      Int      @default(0)
+}
+
+model Sample {
+  id         String   @id @default(cuid())
+  boreholeId String
+  borehole   Borehole @relation(fields: [boreholeId], references: [id], onDelete: Cascade)
+  depthM     String
+  type       String
+  sptValues  String?
+  notes      String?
+  createdAt  DateTime @default(now())
+}
+
+model WaterLevel {
+  id         String   @id @default(cuid())
+  boreholeId String
+  borehole   Borehole @relation(fields: [boreholeId], references: [id], onDelete: Cascade)
+  duringM    Float?
+  after24hM  Float?
+  notes      String?
+  date       DateTime @default(now())
+}
+
+model Equipment {
+  id         String   @id @default(cuid())
+  boreholeId String
+  borehole   Borehole @relation(fields: [boreholeId], references: [id], onDelete: Cascade)
+  type       String
+  fromM      Float
+  toM        Float
+}
+
+model Photo {
+  id         String   @id @default(cuid())
+  boreholeId String
+  borehole   Borehole @relation(fields: [boreholeId], references: [id], onDelete: Cascade)
+  name       String   @default("")
+  filePath   String
+  depthM     Float?
+  createdAt  DateTime @default(now())
+}
+
+model PmtReading {
+  id               String   @id @default(cuid())
+  boreholeId       String
+  borehole         Borehole @relation(fields: [boreholeId], references: [id], onDelete: Cascade)
+  presiometerType  String   @default("OYO")
+  depthFromM       Float
+  depthToM         Float
+  testDate         DateTime @default(now())
+  notes            String?
+}
+
+model OtvReading {
+  id         String   @id @default(cuid())
+  boreholeId String
+  borehole   Borehole @relation(fields: [boreholeId], references: [id], onDelete: Cascade)
+  testKind   String
+  depthFromM Float
+  depthToM   Float
+  testDate   DateTime @default(now())
+  notes      String?
+}
+
+model PpReading {
+  id         String   @id @default(cuid())
+  boreholeId String
+  borehole   Borehole @relation(fields: [boreholeId], references: [id], onDelete: Cascade)
+  plunger    String
+  depthFrom  Float
+  depthTo    Float
+  valuesCsv  String   @default("")
+  createdAt  DateTime @default(now())
+}
+
+model VstReading {
+  id          String   @id @default(cuid())
+  boreholeId  String
+  borehole    Borehole @relation(fields: [boreholeId], references: [id], onDelete: Cascade)
+  vaneSize    String
+  depthFrom   Float
+  depthTo     Float
+  valueKgCm2  Float
+  createdAt   DateTime @default(now())
+}
+
+model RqdReading {
+  id         String   @id @default(cuid())
+  boreholeId String
+  borehole   Borehole @relation(fields: [boreholeId], references: [id], onDelete: Cascade)
+  depthFrom  Float
+  depthTo    Float
+  rqdPercent Float
+  tcrPercent Float  @default(0)
+  scrPercent Float  @default(0)
+  scrRule    String?
+  createdAt  DateTime @default(now())
+}
+
+/// Singleton company profile for PDF header (id always "default")
+model CompanySettings {
+  id        String   @id @default("default")
+  name      String   @default("")
+  address   String?
+  phone     String?
+  email     String?
+  website   String?
+  vatId     String?
+  logoPath  String?
+  updatedAt DateTime @updatedAt
+}

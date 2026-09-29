@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: geoforix
+      POSTGRES_PASSWORD: geoforix
+      POSTGRES_DB: geoforix
+    ports:
+      - "5433:5432"
+    volumes:
+      - geoforix_pg:/var/lib/postgresql/data
+
+volumes:
+  geoforix_pg:

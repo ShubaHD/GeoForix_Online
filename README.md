@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GeoForix Online
 
-## Getting Started
+Web app for field borehole logs (fișe de foraj): projects → boreholes → lithology, samples, in-situ tests, map, PDF + CSV export.
 
-First, run the development server:
+## Stack
+
+- Next.js 16 (App Router) + React 19 + Tailwind 4
+- Prisma + **PostgreSQL** (Docker locally / Neon or Vercel Postgres in production)
+- Auth: JWT cookie (`jose` + `bcryptjs`)
+- Photos / company logo: local `./storage` or **Vercel Blob**
+- PDF: `pdfkit` (RO / EN / DE, independent of UI language)
+
+## Quick start (local)
 
 ```bash
+# 1) Postgres
+docker compose up -d
+
+# 2) Env
+cp .env.example .env
+# set AUTH_SECRET to a long random string
+
+# 3) App
+npm install
+npx prisma migrate deploy
+npm run db:seed
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Demo accounts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Email | Password | Role |
+|-------|----------|------|
+| admin@geoforix.local | admin123 | ADMIN |
+| field@geoforix.local | field123 | FIELD |
 
-## Learn More
+Demo project **DEMO-GF** — boreholes BH01 / BH30 / BH50 / BH100 (after optional seeds).
 
-To learn more about Next.js, take a look at the following resources:
+Extra demos:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npx tsx prisma/seed-bh50.ts
+npx tsx prisma/seed-bh30-bh100.ts
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deploy: GitHub + Vercel
 
-## Deploy on Vercel
+1. Push this repo to GitHub.
+2. Import the project in [vercel.com](https://vercel.com) → **Add New Project**.
+3. **Storage**
+   - Postgres: Storage → create **Neon** / **Prisma Postgres** / **Vercel Postgres** and **Connect** (sets `DATABASE_URL`).
+   - Blob: Storage → **Blob** → create store (sets `BLOB_READ_WRITE_TOKEN`).
+4. **Environment variables** (Project → Settings → Environment Variables)
+   - `DATABASE_URL` (from Storage, if not auto-set)
+   - `AUTH_SECRET` — long random string (required)
+   - `BLOB_READ_WRITE_TOKEN` — from Blob store
+5. Deploy. Build runs `prisma migrate deploy && next build`.
+6. Seed production once (from your machine, with production `DATABASE_URL`):
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npx vercel env pull .env.production.local
+# or paste DATABASE_URL into a temporary .env
+npx prisma migrate deploy
+npm run db:seed
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Features
+
+- Login + admin users + company logo/details for PDF header
+- Explorer: Project → Borehole
+- Editor: data, GPS map, lithology, samples, water, equipment, PMT/OTV/PP/VST/RQD, photos (gallery + camera)
+- Multi-page PDF log, CSV export for import elsewhere
+- PDF warnings (depth checks, missing photos, etc.)
+- UI languages: RO / EN / DE
+
+## Offline
+
+Not in this cloud MVP — use GeoForix Android for offline field work.
